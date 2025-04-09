@@ -1,0 +1,72 @@
+// Firebase Firestore Setup for Angular 18 Chat App
+
+// Step 1: Install Firebase dependencies
+npm install @angular/fire firebase
+
+// Step 2: Setup Firebase Project
+// 1. Go to https://console.firebase.google.com/
+// 2. Click "Add project" and follow the setup wizard
+// 3. Once your project is created, click "Web" (</>) to add a web app to your project
+// 4. Register your app with a nickname (e.g., "angular-chat-app")
+// 5. Copy the Firebase configuration object
+
+// Step 3: Create Firestore Database
+// 1. In the Firebase console, navigate to "Firestore Database"
+// 2. Click "Create database"
+// 3. Choose either "Start in production mode" or "Start in test mode" (for development)
+// 4. Select a location for your Firestore database
+// 5. Click "Enable"
+
+// Step 4: Set up Firestore Security Rules (for production)
+// Navigate to Firestore Database > Rules and configure as needed:
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read access to all users for messages and users collections
+    match /messages/{messageId} {
+      allow read: if true;
+      // Only allow write if the user is authenticated (you'll need to add auth later)
+      allow write: if true; // Change to: request.auth != null;
+    }
+    
+    match /users/{userId} {
+      allow read: if true;
+      allow write: if true; // Change to: request.auth != null;
+    }
+  }
+}
+
+// Step 5: Create Initial Collections & Documents (Optional)
+// You can manually create initial data in the Firestore console:
+
+// Collection: "messages"
+// Example document:
+{
+  "text": "Welcome to the chat app!",
+  "sender": "System",
+  "timestamp": Timestamp (use the server timestamp)
+}
+
+// Collection: "users"
+// Example document:
+{
+  "name": "Alice",
+  "isOnline": true,
+  "lastActive": Timestamp (use the server timestamp)
+}
+
+// Step 6: Update your firebase-config.ts file with your actual Firebase configuration:
+export const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+// Step 7: Initialize Firebase in your Angular app (already done in main.ts)
+
+// Step 8: Run your app!
+ng serve

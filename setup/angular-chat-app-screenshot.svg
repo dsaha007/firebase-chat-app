@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="450" fill="#f0f2f5"/>
+  
+  <!-- Chat Container -->
+  <rect x="50" y="30" width="700" height="390" rx="10" fill="white" stroke="#e0e0e0" stroke-width="1"/>
+  
+  <!-- User List Sidebar -->
+  <rect x="50" y="30" width="200" height="390" fill="#2c3e50" rx="10 0 0 10"/>
+  
+  <!-- Current User -->
+  <rect x="65" y="50" width="170" height="60" rx="6" fill="#34495e"/>
+  <circle cx="90" cy="80" r="20" fill="#e74c3c"/>
+  <text x="90" cy="85" font-family="Arial" font-size="16" fill="white" text-anchor="middle">T</text>
+  <text x="130" y="85" font-family="Arial" font-size="14" fill="white">Thomas</text>
+  
+  <!-- Users Header -->
+  <text x="65" y="140" font-family="Arial" font-size="16" fill="white" font-weight="bold">Users</text>
+  <line x1="65" y1="150" x2="235" y2="150" stroke="#34495e" stroke-width="2"/>
+
+  <!-- User List -->
+  <rect x="65" y="165" width="170" height="50" rx="5" fill="#3498db"/>
+  <circle cx="90" cy="190" r="18" fill="#27ae60"/>
+  <text x="90" cy="195" font-family="Arial" font-size="14" fill="white" text-anchor="middle">S</text>
+  <text x="130" y="195" font-family="Arial" font-size="14" fill="white">Sarah</text>
+  <circle cx="215" cy="190" r="5" fill="#2ecc71"/>
+  
+  <rect x="65" y="225" width="170" height="50" rx="5" fill="transparent"/>
+  <circle cx="90" cy="250" r="18" fill="#8e44ad"/>
+  <text x="90" cy="255" font-family="Arial" font-size="14" fill="white" text-anchor="middle">M</text>
+  <text x="130" y="250" font-family="Arial" font-size="14" fill="white">Michael</text>
+  <circle cx="215" cy="250" r="5" fill="#2ecc71"/>
+  
+  <rect x="65" y="285" width="170" height="50" rx="5" fill="transparent"/>
+  <circle cx="90" cy="310" r="18" fill="#f39c12"/>
+  <text x="90" cy="315" font-family="Arial" font-size="14" fill="white" text-anchor="middle">A</text>
+  <text x="130" y="310" font-family="Arial" font-size="14" fill="white">Alex</text>
+  <circle cx="215" cy="310" r="5" fill="#95a5a6"/>
+  <text x="215" y="320" font-family="Arial" font-size="9" fill="white" text-anchor="middle">offline</text>
+  
+  <!-- Chat Header -->
+  <rect x="250" y="30" width="500" height="60" fill="#4CAF50" rx="0 10 0 0"/>
+  <text x="280" y="65" font-family="Arial" font-size="20" fill="white" font-weight="bold">Angular 18 Chat</text>
+  <text x="620" y="65" font-family="Arial" font-size="14" fill="white">Logged in as: Thomas</text>
+  <rect x="730" y="50" width="60" height="24" rx="4" fill="rgba(0,0,0,0.2)"/>
+  <text x="760" y="65" font-family="Arial" font-size="12" fill="white" text-anchor="middle">Logout</text>
+  
+  <!-- Chat Area with Active User Info -->
+  <rect x="250" y="90" width="500" height="40" fill="white" stroke="#e0e0e0" stroke-width="1"/>
+  <circle cx="280" cy="110" r="18" fill="#27ae60"/>
+  <text x="280" cy="115" font-family="Arial" font-size="14" fill="white" text-anchor="middle">S</text>
+  <text x="360" y="115" font-family="Arial" font-size="14" fill="#333">Chatting with <tspan font-weight="bold">Sarah</tspan></text>
+  <text x="450" y="115" font-family="Arial" font-size="12" fill="#666">Online</text>
+  <rect x="640" y="100" width="90" height="20" rx="4" fill="#f0f0f0"/>
+  <text x="685" y="115" font-family="Arial" font-size="12" fill="#333" text-anchor="middle">← Public Chat</text>
+
+  <!-- Message List -->
+  <rect x="250" y="130" width="500" height="240" fill="#f5f5f5" stroke="#e0e0e0" stroke-width="1"/>
+  
+  <!-- Messages -->
+  <rect x="280" y="150" width="280" height="70" rx="8" fill="#e1e1e1"/>
+  <text x="295" y="170" font-family="Arial" font-size="12" fill="#333" font-weight="bold">Sarah</text>
+  <text x="350" y="170" font-family="Arial" font-size="11" fill="#666">10:42 AM</text>
+  <text x="295" y="190" font-family="Arial" font-size="14" fill="#333">Hi Thomas! How are you today? I was wondering if you could help me with something.</text>
+  <text x="540" y="210" font-family="Arial" font-size="10" fill="#555">Private</text>
+  
+  <rect x="470" y="230" width="260" height="50" rx="8" fill="#e6f7ff"/>
+  <text x="485" y="250" font-family="Arial" font-size="12" fill="#333" font-weight="bold">Thomas</text>
+  <text x="540" y="250" font-family="Arial" font-size="11" fill="#666">10:45 AM</text>
+  <text x="485" y="270" font-family="Arial" font-size="14" fill="#333">Sure, what do you need help with?</text>
+  <text x="715" y="270" font-family="Arial" font-size="10" fill="#555">Private</text>
+  
+  <rect x="280" y="290" width="320" height="50" rx="8" fill="#e1e1e1"/>
+  <text x="295" y="310" font-family="Arial" font-size="12" fill="#333" font-weight="bold">Sarah</text>
+  <text x="350" y="310" font-family="Arial" font-size="11" fill="#666">10:47 AM</text>
+  <text x="295" y="330" font-family="Arial" font-size="14" fill="#333">I'm having trouble with the Angular project.</text>
+  <text x="580" y="330" font-family="Arial" font-size="10" fill="#555">Private</text>
+  
+  <!-- Message Input -->
+  <rect x="250" y="370" width="500" height="50" fill="white" stroke="#e0e0e0" stroke-width="1"/>
+  <rect x="270" y="380" width="400" height="30" rx="15" fill="white" stroke="#ccc" stroke-width="1"/>
+  <text x="290" y="400" font-family="Arial" font-size="14" fill="#999">Message Sarah privately...</text>
+  <rect x="680" y="380" width="60" height="30" rx="15" fill="#4CAF50"/>
+  <text x="710" y="400" font-family="Arial" font-size="14" fill="white" text-anchor="middle">Send</text>
+</svg>
