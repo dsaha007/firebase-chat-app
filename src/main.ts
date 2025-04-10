@@ -10,6 +10,6 @@ bootstrapApplication(AppComponent, {
   providers: [
     ...appConfig.providers,
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
-    provideFirestore(() => getFirestore())
-  ]
-}).catch(err => console.error(err));
+    provideFirestore(() => getFirestore()),
+  ],
+}).catch((err) => console.error(err));

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ChatService, User } from '../../services/chat.service';
+import { ChatService } from '../../services/chat.service';
 
 @Component({
   selector: 'app-user-login',
@@ -9,94 +9,119 @@ import { ChatService, User } from '../../services/chat.service';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="login-container">
-      <div class="login-card">
-        <h1>Angular 18 Chat</h1>
-        
-        <div *ngIf="!currentUser">
-          <div class="card-section">
-            <h2>Select a User</h2>
-            <div class="user-list">
-              <div 
-                *ngFor="let user of users" 
-                class="user-item"
-                [class.offline]="!user.isOnline" 
-                (click)="selectExistingUser(user)"
-              >
-                <div class="user-avatar" [style.background-color]="user.avatar || '#ccc'">
-                  {{ user.name.charAt(0) }}
-                </div>
-                <span class="user-name">{{ user.name }}</span>
-                <span class="status-badge" [class.offline]="!user.isOnline">
-                  {{ user.isOnline ? 'Online' : 'Offline' }}
-                </span>
-              </div>
-              
-              <div *ngIf="users.length === 0" class="no-users">
-                No users available. Create a new user below.
-              </div>
-            </div>
-          </div>
-          
-          <div class="card-section">
-            <h2>Create New User</h2>
-            <div class="create-user-form">
-              <input 
-                type="text" 
-                [(ngModel)]="newUserName" 
-                placeholder="Enter your name" 
-                (keyup.enter)="createNewUser()"
-              />
-              <button 
-                [disabled]="!newUserName.trim() || creatingUser" 
-                (click)="createNewUser()"
-              >
-                {{ creatingUser ? 'Creating...' : 'Join Chat' }}
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        <div *ngIf="currentUser" class="user-selected">
-          <p>Logged in as: <strong>{{ currentUser.name }}</strong></p>
-          <div class="action-buttons">
-            <button class="enter-btn" (click)="enterChat()">Enter Chat</button>
-            <button class="logout-btn" (click)="logout()">Logout</button>
+      <div class="modal">
+        <div class="modal-content" [ngClass]="{ closing: closing }">
+          <div class="form-container">
+            <input
+              type="text"
+              class="name-input"
+              name="name"
+              placeholder="Enter your name..."
+              [(ngModel)]="newUserName"
+              (keyup.enter)="createNewUser()"
+            />
+            <button
+              [disabled]="!newUserName"
+              class="create-btn"
+              (click)="createNewUser()"
+            >
+              Join Chat
+            </button>
           </div>
         </div>
       </div>
     </div>
   `,
-  // Styles omitted for brevity
+  styles: [
+    `
+      .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        min-width: 100vw;
+        background-color: #f0f0f0;
+      }
+
+      /* Modal styles */
+      .modal {
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+      }
+
+      .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 30%;
+        animation-duration: 0.2s;
+        animation-fill-mode: forwards; /* Keep the final state */
+        &.closing {
+          animation-name: animatetop;
+        }
+      }
+
+      /* Add Animation */
+      @keyframes animatetop {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+
+      /* Form styles */
+      .form-container {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .name-input {
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      .create-btn {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: all 0.2s;
+        &:hover {
+          background-color: #3e9642;
+        }
+        &[disabled] {
+          background-color: #c4c8c2;
+          cursor: default;
+        }
+      }
+    `,
+  ],
 })
-export class UserLoginComponent implements OnInit {
-  users: User[] = [];
-  currentUser: User | null = null;
+export class UserLoginComponent {
   newUserName = '';
   creatingUser = false;
-  showChat = false;
-  
+  closing = false;
+
   constructor(private chatService: ChatService) {}
-  
-  ngOnInit(): void {
-    // Load users
-    this.chatService.getUsers().subscribe(users => {
-      this.users = users;
-    });
-    
-    // Check if user is already logged in
-    this.chatService.currentUser$.subscribe(user => {
-      this.currentUser = user;
-    });
-  }
-  
+
   async createNewUser(): Promise<void> {
     if (this.newUserName.trim() && !this.creatingUser) {
       this.creatingUser = true;
       try {
-        const newUser = await this.chatService.addUser(this.newUserName.trim());
-        if (newUser) {
-          this.currentUser = newUser;
-        }
+        await this.chatService.addUser(this.newUserName.trim());
       } catch (error) {
         console.error('Error creating user:', error);
       } finally {
@@ -104,19 +129,5 @@ export class UserLoginComponent implements OnInit {
         this.newUserName = '';
       }
     }
-  }
-  
-  selectExistingUser(user: User): void {
-    this.chatService.setCurrentUser(user);
-    this.currentUser = user;
-  }
-  
-  enterChat(): void {
-    this.showChat = true;
-  }
-  
-  logout(): void {
-    this.chatService.logout();
-    this.currentUser = null;
   }
 }
