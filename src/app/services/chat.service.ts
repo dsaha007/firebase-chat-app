@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import {
   Firestore,
@@ -20,9 +20,9 @@ export interface Message {
   id?: string;
   text: string;
   sender: string;
-  receiver: string; // For private messages
+  receiver: string;
   timestamp: any;
-  isPrivate: boolean; // Flag for private messages
+  isPrivate: boolean;
 }
 
 export interface User {
@@ -37,6 +37,9 @@ export interface User {
   providedIn: 'root',
 })
 export class ChatService {
+  private firestore = inject(Firestore);
+  private ngZone = inject(NgZone);
+
   private usersSubject = new BehaviorSubject<User[]>([]);
   public users$ = this.usersSubject.asObservable();
 
@@ -46,15 +49,11 @@ export class ChatService {
   private selectedUserSubject = new BehaviorSubject<User | null>(null);
   public selectedUser$ = this.selectedUserSubject.asObservable();
 
-  // Track if we're in private chat mode
   private isPrivateChatSubject = new BehaviorSubject<boolean>(false);
   public isPrivateChat$ = this.isPrivateChatSubject.asObservable();
 
-  constructor(private firestore: Firestore) {
-    // Load users from Firestore
+  constructor() {
     this.loadUsers();
-
-    // Try to restore the current user from localStorage
     this.restoreCurrentUser();
   }
 
@@ -65,24 +64,16 @@ export class ChatService {
       .subscribe((users) => {
         this.usersSubject.next(users);
 
-        // If we have a stored current user ID, update their full details from the fetched users
         const currentUser = this.currentUserSubject.getValue();
         if (currentUser) {
-          const updatedCurrentUser = users.find((u) => u.id === currentUser.id);
-          if (updatedCurrentUser) {
-            this.currentUserSubject.next(updatedCurrentUser);
-          }
+          const updated = users.find((u) => u.id === currentUser.id);
+          if (updated) this.currentUserSubject.next(updated);
         }
 
-        // Also update selected user if we have one
         const selectedUser = this.selectedUserSubject.getValue();
         if (selectedUser) {
-          const updatedSelectedUser = users.find(
-            (u) => u.id === selectedUser.id
-          );
-          if (updatedSelectedUser) {
-            this.selectedUserSubject.next(updatedSelectedUser);
-          }
+          const updated = users.find((u) => u.id === selectedUser.id);
+          if (updated) this.selectedUserSubject.next(updated);
         }
       });
   }
@@ -96,7 +87,6 @@ export class ChatService {
     let messagesQuery;
 
     if (isPrivateChat && currentUser && selectedUser) {
-      // For private chats, get messages between current user and selected user
       messagesQuery = query(
         messagesRef,
         where('isPrivate', '==', true),
@@ -105,7 +95,6 @@ export class ChatService {
         orderBy('timestamp', 'asc')
       );
     } else {
-      // For public chat, get non-private messages
       messagesQuery = query(
         messagesRef,
         where('isPrivate', '==', false),
@@ -132,43 +121,46 @@ export class ChatService {
     const selectedUser = this.selectedUserSubject.getValue();
     const isPrivateChat = this.isPrivateChatSubject.getValue();
 
-    await addDoc(messagesRef, {
-      text,
-      sender,
-      receiver: isPrivateChat && selectedUser ? selectedUser.name : 'everyone',
-      timestamp: serverTimestamp(),
-      isPrivate: isPrivateChat,
-    });
+    await this.ngZone.run(() =>
+      addDoc(messagesRef, {
+        text,
+        sender,
+        receiver: isPrivateChat && selectedUser ? selectedUser.name : 'everyone',
+        timestamp: serverTimestamp(),
+        isPrivate: isPrivateChat,
+      })
+    );
   }
 
   async addUser(name: string): Promise<User | null> {
     try {
       const usersRef = collection(this.firestore, 'users');
-      const q = query(usersRef, where('name', '==', name));
-      const querySnapshot = await getDocs(q);
+
+      const querySnapshot = await this.ngZone.run(() =>
+        getDocs(query(usersRef, where('name', '==', name)))
+      );
 
       if (!querySnapshot.empty) {
-        // User already exists
-        const existingUserDoc = querySnapshot.docs[0];
-        const existingUser = {
-          id: existingUserDoc.id,
-          name: existingUserDoc.data()['name'],
-          isOnline: existingUserDoc.data()['isOnline'],
-          avatar: existingUserDoc.data()['avatar'],
+        const existing = querySnapshot.docs[0];
+        const user = {
+          id: existing.id,
+          name: existing.data()['name'],
+          isOnline: existing.data()['isOnline'],
+          avatar: existing.data()['avatar'],
         } as User;
 
-        this.setCurrentUser(existingUser);
-        return existingUser;
+        this.setCurrentUser(user);
+        return user;
       } else {
-        // User does not exist, create a new user
-        const newUserRef = await addDoc(usersRef, {
-          name,
-          isOnline: true,
-          lastActive: serverTimestamp(),
-          avatar: this.generateAvatar(name),
-        });
+        const newUserRef = await this.ngZone.run(() =>
+          addDoc(usersRef, {
+            name,
+            isOnline: true,
+            lastActive: serverTimestamp(),
+            avatar: this.generateAvatar(name),
+          })
+        );
 
-        // Get the newly created user
         const newUser = {
           id: newUserRef.id,
           name,
@@ -176,9 +168,7 @@ export class ChatService {
           avatar: this.generateAvatar(name),
         };
 
-        // Set as current user
         this.setCurrentUser(newUser);
-
         return newUser;
       }
     } catch (error) {
@@ -190,10 +180,12 @@ export class ChatService {
   async updateUserStatus(userId: string, isOnline: boolean): Promise<void> {
     try {
       const userRef = doc(this.firestore, 'users', userId);
-      await updateDoc(userRef, {
-        isOnline,
-        lastActive: serverTimestamp(),
-      });
+      await this.ngZone.run(() =>
+        updateDoc(userRef, {
+          isOnline,
+          lastActive: serverTimestamp(),
+        })
+      );
     } catch (error) {
       console.error('Error updating user status:', error);
     }
@@ -201,17 +193,11 @@ export class ChatService {
 
   setCurrentUser(user: User | null): void {
     this.currentUserSubject.next(user);
-
-    // Store in localStorage for persistence
     if (user) {
       localStorage.setItem('currentUser', JSON.stringify(user));
+      this.updateUserStatus(user.id, true);
     } else {
       localStorage.removeItem('currentUser');
-    }
-
-    // Update online status if we have a user
-    if (user) {
-      this.updateUserStatus(user.id, true);
     }
   }
 
@@ -221,13 +207,11 @@ export class ChatService {
   }
 
   private restoreCurrentUser(): void {
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
+    const stored = localStorage.getItem('currentUser');
+    if (stored) {
       try {
-        const user = JSON.parse(storedUser) as User;
+        const user = JSON.parse(stored) as User;
         this.currentUserSubject.next(user);
-
-        // Update online status
         this.updateUserStatus(user.id, true);
       } catch (e) {
         console.error('Failed to parse stored user', e);
@@ -241,46 +225,23 @@ export class ChatService {
   }
 
   logout(): void {
-    const currentUser = this.currentUserSubject.getValue();
-    if (currentUser) {
-      // Set user as offline
-      this.updateUserStatus(currentUser.id, false);
+    const current = this.currentUserSubject.getValue();
+    if (current) {
+      this.updateUserStatus(current.id, false);
     }
-
-    // Clear current user
     this.setCurrentUser(null);
-
-    // Reset selected user and go back to public chat
     this.selectUser(null);
     localStorage.removeItem('currentUser');
   }
 
   private generateAvatar(name: string): string {
-    // Generate a random color based on the name
     const colors = [
-      '#F44336',
-      '#E91E63',
-      '#9C27B0',
-      '#673AB7',
-      '#3F51B5',
-      '#2196F3',
-      '#03A9F4',
-      '#00BCD4',
-      '#009688',
-      '#4CAF50',
-      '#8BC34A',
-      '#CDDC39',
-      '#FFC107',
-      '#FF9800',
-      '#FF5722',
+      '#F44336', '#E91E63', '#9C27B0', '#673AB7',
+      '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4',
+      '#009688', '#4CAF50', '#8BC34A', '#CDDC39',
+      '#FFC107', '#FF9800', '#FF5722',
     ];
-
-    // Use the sum of char codes for consistent color per name
-    const charSum = name
-      .split('')
-      .reduce((sum, char) => sum + char.charCodeAt(0), 0);
-    const colorIndex = charSum % colors.length;
-
-    return colors[colorIndex];
+    const charSum = name.split('').reduce((sum, c) => sum + c.charCodeAt(0), 0);
+    return colors[charSum % colors.length];
   }
 }

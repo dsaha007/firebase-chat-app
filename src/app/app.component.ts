@@ -8,4 +8,6 @@ import { ChatComponent } from './components/chat/chat.component';
   imports: [CommonModule, ChatComponent],
   template: `<app-chat></app-chat>`,
 })
-export class AppComponent {}
+export class AppComponent {
+  title = 'a-chat-app';
+}

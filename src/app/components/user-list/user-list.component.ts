@@ -24,6 +24,7 @@ import { FormsModule } from '@angular/forms';
         <li
           [class.active]="user.name === currentUser?.name"
           [class.offline]="!user.isOnline"
+          (click)="selectUser(user)"
         >
           <div class="user-avatar">{{ user.name.charAt(0) }}</div>
           <span class="user-name">{{ user.name }}</span>
@@ -200,5 +201,9 @@ export class UserListComponent implements OnInit {
 
   logout(): void {
     this.chatService.logout();
+  }
+
+  selectUser(user: User): void {
+    this.chatService.selectUser(user);
   }
 }

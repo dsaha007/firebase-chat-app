@@ -28,9 +28,9 @@ import { ChatService, User } from '../../services/chat.service';
         <div class="chat-header">
           <h1>Chat App</h1>
           <div class="user-actions">
-            <span class="logged-in-as"
-              >Logged in as: <strong>{{ currentUser.name }}</strong></span
-            >
+            <span class="logged-in-as">
+              Logged in as: <strong>{{ currentUser.name }}</strong>
+            </span>
           </div>
         </div>
         <app-message-list></app-message-list>

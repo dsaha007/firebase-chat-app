@@ -298,9 +298,9 @@ export class MessageListComponent implements OnInit, AfterViewChecked {
   messages: Observable<Message[]>;
   currentUser: User | null = null;
   selectedUser: User | null = null;
-  isPrivateChat = false;
+  isPrivateChat = true;
   loading = true;
-  debug = false; // Set to true to show debug info
+  debug = true; // Set to true to show debug info
 
   @ViewChild('messageContainer') private messageContainer!: ElementRef;
 
