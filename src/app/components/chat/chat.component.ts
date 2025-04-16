@@ -5,7 +5,7 @@ import { MessageInputComponent } from '../message-input/message-input.component'
 import { UserListComponent } from '../user-list/user-list.component';
 import { UserLoginComponent } from '../user-login/user-login.component';
 import { ChatService, User } from '../../services/chat.service';
-
+import { Observable } from 'rxjs';
 @Component({
   selector: 'app-chat',
   standalone: true,
@@ -26,11 +26,15 @@ import { ChatService, User } from '../../services/chat.service';
       <app-user-list></app-user-list>
       <div class="chat-area">
         <div class="chat-header">
-          <h1>Chat App</h1>
+        <h1>
+            {{ (selectedUser$ | async)?.name ? 'Private Chat with ' + (selectedUser$ | async)?.name : 'Chat App' }}
+          </h1>
+
+
           <div class="user-actions">
-            <span class="logged-in-as">
-              Logged in as: <strong>{{ currentUser.name }}</strong>
-            </span>
+            <span class="logged-in-as"
+              >Logged in as: <strong>{{ currentUser.name }}</strong></span
+            >
           </div>
         </div>
         <app-message-list></app-message-list>
@@ -68,9 +72,11 @@ import { ChatService, User } from '../../services/chat.service';
 })
 export class ChatComponent implements OnInit {
   currentUser: User | null = null;
+  selectedUser$: Observable<User | null>;
 
-  constructor(private chatService: ChatService) {}
-
+  constructor(private chatService: ChatService) {
+    this.selectedUser$ = this.chatService.selectedUser$;
+  }
   ngOnInit(): void {
     // Subscribe to current user
     this.chatService.currentUser$.subscribe((user) => {

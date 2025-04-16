@@ -300,7 +300,7 @@ export class MessageListComponent implements OnInit, AfterViewChecked {
   selectedUser: User | null = null;
   isPrivateChat = true;
   loading = true;
-  debug = true; // Set to true to show debug info
+  debug = false; // Set to true to show debug info
 
   @ViewChild('messageContainer') private messageContainer!: ElementRef;
 

@@ -5,11 +5,10 @@ import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { firebaseConfig } from './app/firebase-config';
 
-// Update app config to include Firebase providers
 bootstrapApplication(AppComponent, {
   providers: [
     ...appConfig.providers,
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
-    provideFirestore(() => getFirestore()),
+    provideFirestore(() => getFirestore()), // Ensure Firestore is provided
   ],
 }).catch((err) => console.error(err));
