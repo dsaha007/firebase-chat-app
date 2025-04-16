@@ -71,12 +71,16 @@ import { FormsModule } from '@angular/forms';
         padding: 10px;
         border-radius: 5px;
         margin-bottom: 5px;
+        cursor: pointer;
       }
       li.active {
         background-color: #3498db;
       }
       li.offline {
         opacity: 0.6;
+      }
+      li:active{
+        background-color: #2980b9;
       }
       .user-avatar {
         width: 35px;
